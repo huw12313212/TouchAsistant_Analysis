@@ -13,8 +13,11 @@ public class TapAssistAnalysis {
 	public static int TapDistIndexX = 26;
 	public static int TapDistIndexY = 27;
 	
-	public static int ScrollDistIndexX = 15;
-	public static int ScrollDistIndexY = 16;
+	public static int ScrollDistIndexX = 16;
+	public static int ScrollDistIndexY = 17;
+	
+	public static int ScrollPath = 23;
+	public static int ZERO = 0;
 	
 	public static int TargetDistXIndex = 7;
 	public static int TargetDistYIndex = 8;
@@ -22,18 +25,22 @@ public class TapAssistAnalysis {
 	private ArrayList<TapAssistDataEntry> tapList;
 	private ArrayList<TapAssistDataEntry> scrollList;
 	private ArrayList<TapAssistDataEntry> scrollListYOnly;
+	private ArrayList<TapAssistDataEntry> scrollPathList;
 	
 	private ArrayList<Float> tapCDF;
 	private ArrayList<Float> scrollCDF;
 	private ArrayList<Float> scrollListYOnlyCDF;
+	private ArrayList<Float> scrollPathListCDF;
 	
 	private ArrayList<Float> tapPDF;
 	private ArrayList<Float> scrollPDF;
 	private ArrayList<Float> scrollListYOnlyPDF;
+	private ArrayList<Float> scrollPathListPDF;
 
 	private ArrayList<Float> tapPDFWithCount;
 	private ArrayList<Float> scrollPDFWithCount;
 	private ArrayList<Float> scrollListYOnlyPDFWithCount;
+	private ArrayList<Float> scrollPathListPDFWithCount;
 	
 	
 	
@@ -49,27 +56,35 @@ public class TapAssistAnalysis {
 		tapList = LoadFile(TapFile,TapAssistDataEntry.DistancePolicy.Dist,TapDistIndexX,TapDistIndexY);
 		scrollList = LoadFile(ScrollFile,TapAssistDataEntry.DistancePolicy.Dist,ScrollDistIndexX,ScrollDistIndexY);
 		scrollListYOnly = LoadFile(ScrollFile,TapAssistDataEntry.DistancePolicy.YOnly,ScrollDistIndexX,ScrollDistIndexY);
-		tapDifList = LoadFile(TapFile,TapAssistDataEntry.DistancePolicy.Dist,TargetDistXIndex,TargetDistYIndex);
+		tapDifList = LoadFile(TapFile,TapAssistDataEntry.DistancePolicy.Dist,TargetDistXIndex,TargetDistYIndex); 
+		scrollPathList = LoadFile(ScrollFile,TapAssistDataEntry.DistancePolicy.XOnly,ScrollPath,ZERO); 
 		
 		Collections.sort(tapList, new TapDistanceComparator());
 		Collections.sort(scrollList, new TapDistanceComparator());
 		Collections.sort(scrollListYOnly, new TapDistanceComparator());
-	
+		Collections.sort(scrollPathList, new TapDistanceComparator());
+		
 		float RangeMax = GetMaximum();
 		
 		
 		tapCDF = GetCDF(tapList,RangeMax);
 		scrollCDF = GetCDF(scrollList,RangeMax);
 		scrollListYOnlyCDF = GetCDF(scrollListYOnly,RangeMax);
+		scrollPathListCDF = GetCDF(scrollPathList,RangeMax);
+		
 		
 		
 		tapPDF = GetPDF(tapList,RangeMax,true);
 		scrollPDF = GetPDF(scrollList,RangeMax,true);
 		scrollListYOnlyPDF = GetPDF(scrollListYOnly,RangeMax,true);
+		scrollPathListPDF = GetPDF(scrollPathList,RangeMax,true);
+		
 		
 		tapPDFWithCount = GetPDF(tapList,RangeMax,false);
 		scrollPDFWithCount = GetPDF(scrollList,RangeMax,false);
 		scrollListYOnlyPDFWithCount = GetPDF(scrollListYOnly,RangeMax,false);
+		scrollPathListPDFWithCount = GetPDF(scrollPathList,RangeMax,false);
+		
 		//CDF,PDF,PDF with Count
 		
 		//EXTRA
@@ -98,12 +113,12 @@ public class TapAssistAnalysis {
 			System.out.println(i+":"+scrollListYOnlyCDF.get(i));
 		}*/
 		
-		/*
-		for(int i = 0 ; i < tapDifList.size();i++)
+		
+		for(int i = 0 ; i < scrollPathList.size();i++)
 		{
-			System.out.println(i+":"+tapDifList.get(i));
+			System.out.println(i+":"+scrollPathList.get(i));
 		}
-		*/
+		
 		
 		
 		
@@ -132,17 +147,17 @@ public class TapAssistAnalysis {
 		{
 		FileWriter fw = new FileWriter(f);
 		
-		fw.write("CDF,,,,,PDF,,,,,PDFWithCount,,,,,TapDist:,CDF,PDF,PDFWithCount\n");
-	    fw.write("¶ZÂ÷,tap,scroll,scrollY,,¶ZÂ÷,tap,scroll,scrollY,,¶ZÂ÷,tap("+tapList.size()+"),scroll("+scrollList.size()+"),scrollY("+scrollList.size()+"),,¶ZÂ÷,tap,tap,tap("+tapDifList.size()+")\n");
+		fw.write("CDF,,,,,,PDF,,,,,,PDFWithCount,,,,,,TapDist:,CDF,PDF,PDFWithCount\n");
+	    fw.write("¶ZÂ÷,tap,scroll,scrollY,scrollPath,,¶ZÂ÷,tap,scroll,scrollY,scrollPath,,¶ZÂ÷,tap("+tapList.size()+"),scroll("+scrollList.size()+"),scrollY("+scrollList.size()+"),scrollPath("+scrollPathList.size()+"),,¶ZÂ÷,tap,tap,tap("+tapDifList.size()+")\n");
 	    //fw.write(",,,,,,,,,,,"+tapList.size()+","+scrollList.size()+","+scrollList.size()+"\n");
 	    int i;
 	    
 		for(i = 0; i < tapCDF.size();i++)
 		{
 			
-				String line = i+","+tapCDF.get(i)+","+scrollCDF.get(i)+","+scrollListYOnlyCDF.get(i)+",,"+
-				i+","+tapPDF.get(i)+","+scrollPDF.get(i)+","+scrollListYOnlyPDF.get(i)+",,"+
-				i+","+tapPDFWithCount.get(i)+","+scrollPDFWithCount.get(i)+","+scrollListYOnlyPDFWithCount.get(i)+",,";
+				String line = i+","+tapCDF.get(i)+","+scrollCDF.get(i)+","+scrollListYOnlyCDF.get(i)+","+scrollPathListCDF.get(i)+",,"+
+				i+","+tapPDF.get(i)+","+scrollPDF.get(i)+","+scrollListYOnlyPDF.get(i)+","+scrollPathListPDF.get(i)+",,"+
+				i+","+tapPDFWithCount.get(i)+","+scrollPDFWithCount.get(i)+","+scrollListYOnlyPDFWithCount.get(i)+","+scrollPathListPDFWithCount.get(i)+",,";
 		
 				if(i<tapDifCDF.size())
 				{
@@ -158,7 +173,7 @@ public class TapAssistAnalysis {
 		
 		for(;i<tapDifCDF.size();i++)
 		{
-			String line = ",,,,,,,,,,,,,,,";
+			String line = ",,,,,,,,,,,,,,,,,,";
 			
 
 			line += i+","+tapDifCDF.get(i)+","+tapDifPDF.get(i)+","+tapDifPDFWithCount.get(i)+",\n";
@@ -258,6 +273,10 @@ public class TapAssistAnalysis {
 		if(temp>result)result = temp;
 		
 		temp = scrollListYOnly.get(scrollListYOnly.size()-1).getDistance();
+		
+		if(temp>result)result = temp;
+		
+		temp = scrollPathList.get(scrollPathList.size()-1).getDistance();
 		
 		if(temp>result)result = temp;
 		
