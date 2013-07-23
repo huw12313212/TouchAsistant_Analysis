@@ -113,13 +113,13 @@ public class TapAssistAnalysis {
 			System.out.println(i+":"+scrollListYOnlyCDF.get(i));
 		}*/
 		
-		
+		/*
 		for(int i = 0 ; i < scrollPathList.size();i++)
 		{
 			System.out.println(i+":"+scrollPathList.get(i));
 		}
 		
-		
+		*/
 		
 		
 		//printAll();
