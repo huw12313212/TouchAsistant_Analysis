@@ -10,11 +10,17 @@ import java.util.Collections;
 
 public class TapAssistAnalysis {
 	
-	public static int TapDistIndexX = 26;
-	public static int TapDistIndexY = 27;
+	public static int TapDistIndexX = 28;
+	public static int TapDistIndexY = 29;
 	
 	public static int ScrollDistIndexX = 16;
 	public static int ScrollDistIndexY = 17;
+	
+	public static int TapMaxV = 28;
+	public static int TapMinV = 29;
+	
+	public static int ScrollMaxV = 18;
+	public static int ScrollMinv = 19;
 	
 	public static int ScrollPath = 23;
 	public static int ZERO = 0;
@@ -26,6 +32,9 @@ public class TapAssistAnalysis {
 	private ArrayList<TapAssistDataEntry> scrollList;
 	private ArrayList<TapAssistDataEntry> scrollListYOnly;
 	private ArrayList<TapAssistDataEntry> scrollPathList;
+	
+	
+
 	
 	private ArrayList<Float> tapCDF;
 	private ArrayList<Float> scrollCDF;
@@ -50,6 +59,17 @@ public class TapAssistAnalysis {
 	private ArrayList<Float> tapDifPDFWithCount;
 	
 	
+	
+	private ArrayList<TapAssistDataEntry> ScrollSpeedMaxList;
+	private ArrayList<TapAssistDataEntry> TapSpeedMaxList;
+	
+	private ArrayList<Float> ScrollSpeedCDF;
+	private ArrayList<Float> TapSpeedCDF;
+	
+	private ArrayList<Float> ScrollSpeedPDF;
+	private ArrayList<Float> TapSpeedPDF;
+	
+	
 	public TapAssistAnalysis(File TapFile,File ScrollFile)
 	{
 		//CDF,PDF,PDF with Count
@@ -59,10 +79,14 @@ public class TapAssistAnalysis {
 		tapDifList = LoadFile(TapFile,TapAssistDataEntry.DistancePolicy.Dist,TargetDistXIndex,TargetDistYIndex); 
 		scrollPathList = LoadFile(ScrollFile,TapAssistDataEntry.DistancePolicy.XOnly,ScrollPath,ZERO); 
 		
+
+		
 		Collections.sort(tapList, new TapDistanceComparator());
 		Collections.sort(scrollList, new TapDistanceComparator());
 		Collections.sort(scrollListYOnly, new TapDistanceComparator());
 		Collections.sort(scrollPathList, new TapDistanceComparator());
+		
+		
 		
 		float RangeMax = GetMaximum();
 		
@@ -121,6 +145,27 @@ public class TapAssistAnalysis {
 		
 		*/
 		
+		ScrollSpeedMaxList = LoadFile(ScrollFile,TapAssistDataEntry.DistancePolicy.XOnly,ScrollMaxV,ScrollMinv);
+		TapSpeedMaxList = LoadFile(TapFile,TapAssistDataEntry.DistancePolicy.XOnly,TapDistIndexX,TapDistIndexY);
+		
+		Collections.sort(ScrollSpeedMaxList, new TapDistanceComparator());
+		Collections.sort(TapSpeedMaxList, new TapDistanceComparator());
+		
+		for(int i = 0 ; i < TapSpeedMaxList.size();i++)
+		{
+			TapSpeedMaxList.get(i).DistX *= 100;
+		}
+		
+		float max = TapSpeedMaxList.get(TapSpeedMaxList.size()-1).getDistance();
+		float temp2 = ScrollSpeedMaxList.get(ScrollSpeedMaxList.size()-1).getDistance();
+		
+		if(max<temp2)max = temp2;
+		
+		TapSpeedCDF = GetCDF(TapSpeedMaxList,max);
+		ScrollSpeedCDF = GetCDF(ScrollSpeedMaxList,max);
+		
+		TapSpeedPDF = GetPDF(TapSpeedMaxList,max,false);
+		ScrollSpeedPDF = GetPDF(ScrollSpeedMaxList,max,false);
 		
 		//printAll();
 	}
@@ -179,6 +224,20 @@ public class TapAssistAnalysis {
 			line += i+","+tapDifCDF.get(i)+","+tapDifPDF.get(i)+","+tapDifPDFWithCount.get(i)+",\n";
 
 					
+			fw.write(line);
+		}
+		
+		fw.write("\n");
+		fw.write("CDF,,,,PDF,\n");
+		fw.write("MaxSpeed,Tap,Scroll,,MaxSpeed,Tap,Scroll,\n");
+	
+		for(int j=0;j<TapSpeedCDF.size();j++)
+		{
+			String line = "";
+			
+			line += j+","+TapSpeedCDF.get(j)+","+ScrollSpeedCDF.get(j)+",,";
+			line += j+","+TapSpeedPDF.get(j)+","+ScrollSpeedPDF.get(j)+",,\n";
+			
 			fw.write(line);
 		}
 		
