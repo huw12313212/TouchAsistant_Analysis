@@ -249,7 +249,7 @@ public class TapAssistAnalysis {
 		}
 	}
 	
-	public ArrayList<Float> GetCDF (ArrayList<TapAssistDataEntry> distList,float max)
+	public static ArrayList<Float> GetCDF (ArrayList<TapAssistDataEntry> distList,float max)
 	{
 		ArrayList<Float> CDFList = new ArrayList<Float>();
 		
@@ -369,7 +369,7 @@ public class TapAssistAnalysis {
 
 	
 
-	private ArrayList<TapAssistDataEntry> LoadFile(File file,TapAssistDataEntry.DistancePolicy policy,int indexX,int indexY) {
+	static public ArrayList<TapAssistDataEntry> LoadFile(File file,TapAssistDataEntry.DistancePolicy policy,int indexX,int indexY) {
 		
 		ArrayList<TapAssistDataEntry> data = new ArrayList<TapAssistDataEntry>();
 		
